@@ -20,9 +20,11 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.zhangebaoge.hhg.Utils.WebViewUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String INDEX = "http://shop.php9.cn";
     private static String NINENINE = "http://shop.php9.cn/index.php?r=nine/wap";
     private static String GRAD = "http://shop.php9.cn/index.php?r=ddq/wap";
+    private List<String> mUrls = new ArrayList<>();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -47,10 +50,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.navigation_home:
                     loadUrl(INDEX);
                     return true;
-                case R.id.navigation_dashboard:
+                case R.id.navigation_ninenine:
                     loadUrl(NINENINE);
                     return true;
-                case R.id.navigation_notifications:
+                case R.id.navigation_ddq:
                     loadUrl(GRAD);
                     return true;
             }
@@ -59,8 +62,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void loadUrl(String url) {
+        mUrls.add(url);
         mCurrPage = url;
         mMainWebView.loadUrl(url);
+        mLoadError = false;
     }
 
     @Override
@@ -86,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMainWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
+//                view.loadUrl(url);
+                loadUrl(url);
                 return true;
             }
         });
@@ -127,9 +133,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
+//                Log.d(TAG,"start url:" + url);
+                mLoadError = false;
                 mRllGoShopping.setVisibility(View.VISIBLE);
                 mMainWebView.setVisibility(View.GONE);
+                super.onPageStarted(view, url, favicon);
+
             }
 
             @Override
@@ -154,17 +163,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMainWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onReceivedTitle(WebView view, String title) {
-
                 if ((!TextUtils.isEmpty(title) && title.toLowerCase().contains("error")) || (!TextUtils.isEmpty(title) && title.equals("找不到网页"))) {
                     mLoadError = true;
-
                 }
             }
 
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
-
+                if(mLoadError){
+                    mRllGoShopping.setVisibility(View.VISIBLE);
+                    mMainWebView.setVisibility(View.GONE);
+                    return;
+                }
                 if (newProgress == 100) {
                     mRllGoShopping.setVisibility(View.GONE);
                     mMainWebView.setVisibility(View.VISIBLE);
