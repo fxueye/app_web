@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">app_web</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="app_name">慧慧购</string>
+    <string name="title_home">首页</string>
+    <string name="title_ninenine">9.9</string>
+    <string name="title_ddq">咚咚呛</string>
     <string name="go_shopping">赶往商店中...</string>
 </resources>
