@@ -24,18 +24,18 @@ import android.widget.Toast;
 
 import com.zhangebaoge.hhg.Utils.WebViewUtils;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static String TAG = "MainActivity";
     private String mCurrPage = "";
     private WebView mMainWebView;
-//    private ImageView mImgBag;
+    //    private ImageView mImgBag;
     private RelativeLayout mRllGoShopping;
-    private Boolean mLoadError;
+    private Boolean mLoadError = false;
     private ValueCallback<Uri> mUploadMessage;
     public static int FILECHOOSER_RESULTCODE = 1;
     private static String INDEX = "http://shop.php9.cn";
-    private static String NINENINE= "http://shop.php9.cn/index.php?r=nine/wap";
+    private static String NINENINE = "http://shop.php9.cn/index.php?r=nine/wap";
     private static String GRAD = "http://shop.php9.cn/index.php?r=ddq/wap";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -57,10 +57,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         }
     };
-    private void loadUrl(String url){
+
+    private void loadUrl(String url) {
         mCurrPage = url;
         mMainWebView.loadUrl(url);
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return super.onKeyDown(keyCode, event);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         WebViewUtils.setDefaultWebSettings(this, mMainWebView);
         WebViewUtils.removeJavascriptInterfaces(mMainWebView);
         mRllGoShopping.setOnClickListener(this);
-        mMainWebView.setWebViewClient(new WebViewClient(){
+        mMainWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
@@ -104,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return super.shouldOverrideUrlLoading(view, request);
             }
+
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
                 if (url.startsWith("tel:") || url.startsWith("weixin:") || url.startsWith("alipays:") || url.startsWith("tbopen:") || url.startsWith(" taobao:")) {
@@ -124,12 +128,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
+                mRllGoShopping.setVisibility(View.VISIBLE);
+                mMainWebView.setVisibility(View.GONE);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 mRllGoShopping.setVisibility(View.GONE);
+                if (mLoadError) {
+                    mRllGoShopping.setVisibility(View.VISIBLE);
+                    mMainWebView.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -154,12 +164,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
+
                 if (newProgress == 100) {
                     mRllGoShopping.setVisibility(View.GONE);
                     mMainWebView.setVisibility(View.VISIBLE);
-                } else {
-                    mMainWebView.setVisibility(View.GONE);
-                    mRllGoShopping.setVisibility(View.VISIBLE);
+                } else if (newProgress > 50) {
+                    mRllGoShopping.setVisibility(View.GONE);
+                    mMainWebView.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -198,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        if(view.getId() == mRllGoShopping.getId()){
+        if (view.getId() == mRllGoShopping.getId()) {
             loadUrl(mCurrPage);
         }
     }
